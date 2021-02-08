@@ -1364,6 +1364,9 @@ void CCompressDialog::SetLevel2()
   UInt32 LevelsMask = fi.LevelsMask;
   UInt32 LevelsStart = 1;
   UInt32 LevelsEnd = 9;
+  if (ai.LevelsMask != 0xFFFFFFFF)
+    LevelsMask = ai.LevelsMask;
+  else
   {
     int id = GetMethodID();
     if (id == kCopy) {

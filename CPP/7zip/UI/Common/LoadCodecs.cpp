@@ -397,6 +397,8 @@ HRESULT CCodecs::LoadFormats()
   MY_GET_FUNC (getProp2, Func_GetHandlerProperty2, lib.GetProc("GetHandlerProperty2"));
   Func_GetIsArc getIsArc;
   MY_GET_FUNC (getIsArc, Func_GetIsArc, lib.GetProc("GetIsArc"));
+  Func_GetFormatLevelMask getFormatLevelMask;
+  MY_GET_FUNC (getFormatLevelMask, Func_GetFormatLevelMask, lib.GetProc("GetFormatLevelMask"));
   
   UInt32 numFormats = 1;
 
@@ -475,6 +477,9 @@ HRESULT CCodecs::LoadFormats()
 
     if (getIsArc)
       getIsArc(i, &item.IsArcFunc);
+
+    if (getFormatLevelMask)
+      getFormatLevelMask(i, &item.LevelsMask);
 
     Formats.Add(item);
   }

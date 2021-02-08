@@ -1133,7 +1133,10 @@ void CCompressDialog::SetLevel()
   UInt32 langID = 0;
   unsigned i, ir;
 
-  if (GetMethodID() == kZSTD)
+  const CArcInfoEx &ai = (*ArcFormats)[GetFormatIndex()];
+  if (ai.LevelsMask != 0xFFFFFFFF)
+    LevelsMask = ai.LevelsMask;
+  else if (GetMethodID() == kZSTD)
     LevelsMask = g_Formats[6].LevelsMask;
   else if (GetMethodID() == kBROTLI)
     LevelsMask = g_Formats[7].LevelsMask;
@@ -1160,7 +1163,6 @@ void CCompressDialog::SetLevel()
   else
     LevelsMask = g_Formats[GetStaticFormatIndex()].LevelsMask;
 
-  const CArcInfoEx &ai = (*ArcFormats)[GetFormatIndex()];
   {
     int index = FindRegistryFormat(ai.Name);
     if (index >= 0)

@@ -117,6 +117,7 @@ struct CArcInfoEx
     int LibIndex;
     UInt32 FormatIndex;
     CLSID ClassID;
+    UInt32 LevelsMask;
   #endif
 
   bool Flags_KeepName() const { return (Flags & NArcInfoFlags::kKeepName) != 0; }
@@ -173,6 +174,7 @@ struct CArcInfoEx
       #endif
       #ifdef EXTERNAL_CODECS
       , LibIndex(-1)
+      , LevelsMask(0xFFFFFFFF)
       #endif
   {}
 };

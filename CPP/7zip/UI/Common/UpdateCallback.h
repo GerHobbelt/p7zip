@@ -121,6 +121,10 @@ public:
   CRecordVector<UInt64> VolumesSizes;
   FString VolName;
   FString VolExt;
+  FString VolPrefix;
+  FString VolPostfix;
+  bool VolNumberAfterExt;
+  UInt32 DigitCount;
 
   IUpdateCallbackUI *Callback;
 

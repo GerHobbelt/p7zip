@@ -93,7 +93,7 @@ CFLAGS = $(CFLAGS) -MT
 CFLAGS = $(CFLAGS_COMMON) $(CFLAGS)
 
 !IFNDEF OLD_COMPILER
-CFLAGS = $(CFLAGS) -GS- -Zc:forScope -Zc:wchar_t
+CFLAGS = $(CFLAGS) -GS- -Zc:forScope -Zc:wchar_t -std:c++17 -wd5043
 !IFNDEF UNDER_CE
 !IF "$(CC)" != "clang-cl"
 CFLAGS = $(CFLAGS) -MP4

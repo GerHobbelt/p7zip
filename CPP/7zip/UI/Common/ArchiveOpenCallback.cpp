@@ -51,10 +51,11 @@ STDMETHODIMP COpenCallbackImp::GetProperty(PROPID propID, PROPVARIANT *value)
       case kpidName:  prop = fs2us(_fileInfo.Name); break;
       case kpidIsDir:  prop = _fileInfo.IsDir(); break;
       case kpidSize:  prop = _fileInfo.Size; break;
-      case kpidAttrib:  prop = (UInt32)_fileInfo.Attrib; break;
-      case kpidCTime:  prop = _fileInfo.CTime; break;
-      case kpidATime:  prop = _fileInfo.ATime; break;
-      case kpidMTime:  prop = _fileInfo.MTime; break;
+      case kpidAttrib:  prop = (UInt32)_fileInfo.GetWinAttrib(); break;
+      case kpidPosixAttrib:  prop = (UInt32)_fileInfo.GetPosixAttrib(); break;
+      case kpidCTime:  PropVariant_SetFrom_FiTime(prop, _fileInfo.CTime); break;
+      case kpidATime:  PropVariant_SetFrom_FiTime(prop, _fileInfo.ATime); break;
+      case kpidMTime:  PropVariant_SetFrom_FiTime(prop, _fileInfo.MTime); break;
     }
   prop.Detach(value);
   return S_OK;

@@ -10,6 +10,16 @@
 
 #include "ExtractMode.h"
 
+/*
+CBoolPair::Def in writing functions means:
+  if (  CBoolPair::Def ), we write CBoolPair::Val
+  if ( !CBoolPair::Def )
+  {
+    in NCompression functions we delete registry value
+    in another functions we do nothing
+  }
+*/
+
 namespace NExtract
 {
   struct CInfo
@@ -75,12 +85,29 @@ namespace NCompression
     UInt32 BlockLogSize;
     UInt32 NumThreads;
     
+    UInt32 TimePrec;
+    CBoolPair MTime;
+    CBoolPair ATime;
+    CBoolPair CTime;
+    CBoolPair SetArcMTime;
+
     CSysString FormatID;
     UString Method;
     UString SplitVolume;
     UString Options;
     UString EncryptionMethod;
     UString MemUse;
+
+    void Reset_TimePrec()
+    {
+      TimePrec = (UInt32)(Int32)-1;
+    }
+
+    bool IsSet_TimePrec() const
+    {
+      return TimePrec != (UInt32)(Int32)-1;
+    }
+
 
     void Reset_BlockLogSize()
     {
@@ -94,7 +121,12 @@ namespace NCompression
       // Options.Empty();
       // EncryptionMethod.Empty();
     }
-    CFormatOptions() { ResetForLevelChange(); }
+    CFormatOptions()
+    {
+      // TimePrec = 0;
+      Reset_TimePrec();
+      ResetForLevelChange();
+    }
   };
 
   struct CInfo
@@ -111,6 +143,8 @@ namespace NCompression
     CBoolPair AltStreams;
     CBoolPair HardLinks;
     CBoolPair SymLinks;
+
+    CBoolPair PreserveATime;
 
     void Save() const;
     void Load();
@@ -156,6 +190,15 @@ struct CContextMenuInfo
 
   bool Flags_Def;
   UInt32 Flags;
+  UInt32 WriteZone;
+
+  /*
+  CContextMenuInfo():
+      Flags_Def(0),
+      WriteZone((UInt32)(Int32)-1),
+      Flags((UInt32)(Int32)-1)
+      {}
+  */
 
   void Save() const;
   void Load();

@@ -17,6 +17,7 @@ struct CUpdatePair2
   int NewNameIndex;
 
   bool IsMainRenameItem;
+  bool IsSameTime;
 
   void SetAs_NoChangeArcItem(unsigned arcIndex) // int
   {

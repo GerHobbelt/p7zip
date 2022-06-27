@@ -2,11 +2,19 @@
 
 #include "StdAfx.h"
 
+#if defined(_MSC_VER)
+#include <winternl.h>
+#else
+// mingw
+#include <ddk/winddk.h>
+#endif
+
 #include "../../../Common/ComTry.h"
 #include "../../../Common/Defs.h"
 #include "../../../Common/StringConvert.h"
 #include "../../../Common/UTFConvert.h"
 
+#include "../../../Windows/DLL.h"
 #include "../../../Windows/FileDir.h"
 #include "../../../Windows/FileIO.h"
 #include "../../../Windows/FileName.h"
@@ -56,6 +64,9 @@ static const Byte kProps[] =
   kpidMTime,
   kpidCTime,
   kpidATime,
+ #ifdef FS_SHOW_LINKS_INFO
+  kpidChangeTime,
+ #endif
   kpidAttrib,
   kpidPackSize,
   #ifdef FS_SHOW_LINKS_INFO
@@ -209,9 +220,13 @@ HRESULT CFSFolder::LoadSubItems(int dirItem, const FString &relPrefix)
       fi.FileInfo_WasRequested = false;
       fi.FileIndex = 0;
       fi.NumLinks = 0;
+      fi.ChangeTime_Defined = false;
+      fi.ChangeTime_WasRequested = false;
       #endif
       
       fi.PackSize = fi.Size;
+     
+     #ifdef FS_SHOW_LINKS_INFO
       if (fi.HasReparsePoint())
       {
         fi.FileInfo_WasRequested = true;
@@ -221,8 +236,9 @@ HRESULT CFSFolder::LoadSubItems(int dirItem, const FString &relPrefix)
         fi.FileIndex = (((UInt64)info.nFileIndexHigh) << 32) + info.nFileIndexLow;
         fi.FileInfo_Defined = true;
       }
+     #endif
 
-      #endif
+     #endif // UNDER_CE
 
       /* unsigned fileIndex = */ Files.Add(fi);
 
@@ -409,7 +425,71 @@ bool CFSFolder::ReadFileInfo(CDirItem &di)
   di.FileInfo_Defined = true;
   return true;
 }
-#endif
+
+
+typedef struct
+{
+  LARGE_INTEGER CreationTime;
+  LARGE_INTEGER LastAccessTime;
+  LARGE_INTEGER LastWriteTime;
+  LARGE_INTEGER ChangeTime;
+  ULONG FileAttributes;
+  UInt32 Reserved; // it's expected for alignment
+}
+MY__FILE_BASIC_INFORMATION;
+
+
+typedef enum
+{
+  MY__FileDirectoryInformation = 1,
+  MY__FileFullDirectoryInformation,
+  MY__FileBothDirectoryInformation,
+  MY__FileBasicInformation
+}
+MY__FILE_INFORMATION_CLASS;
+
+
+typedef NTSTATUS (WINAPI * Func_NtQueryInformationFile)(
+    HANDLE handle, IO_STATUS_BLOCK *io,
+    void *ptr, LONG len, MY__FILE_INFORMATION_CLASS cls);
+
+#define MY__STATUS_SUCCESS 0
+
+static Func_NtQueryInformationFile f_NtQueryInformationFile;
+static bool g_NtQueryInformationFile_WasRequested = false;
+
+void CFSFolder::ReadChangeTime(CDirItem &di)
+{
+  di.ChangeTime_WasRequested = true;
+
+  if (!g_NtQueryInformationFile_WasRequested)
+  {
+    g_NtQueryInformationFile_WasRequested = true;
+    f_NtQueryInformationFile = (Func_NtQueryInformationFile)
+        My_GetProcAddress(::GetModuleHandleW(L"ntdll.dll"),
+        "NtQueryInformationFile");
+  }
+  if (!f_NtQueryInformationFile)
+    return;
+
+  NIO::CInFile file;
+  if (!file.Open_for_ReadAttributes(_path + GetRelPath(di)))
+    return;
+  MY__FILE_BASIC_INFORMATION fbi;
+  IO_STATUS_BLOCK IoStatusBlock;
+  const NTSTATUS status = f_NtQueryInformationFile(file.GetHandle(), &IoStatusBlock,
+      &fbi, sizeof(fbi), MY__FileBasicInformation);
+  if (status != MY__STATUS_SUCCESS)
+    return;
+  if (IoStatusBlock.Information != sizeof(fbi))
+    return;
+  di.ChangeTime.dwLowDateTime = fbi.ChangeTime.u.LowPart;
+  di.ChangeTime.dwHighDateTime = fbi.ChangeTime.u.HighPart;
+  di.ChangeTime_Defined = true;
+}
+
+#endif // FS_SHOW_LINKS_INFO
+
 
 STDMETHODIMP CFSFolder::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value)
 {
@@ -493,6 +573,13 @@ STDMETHODIMP CFSFolder::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *va
       #endif
       break;
     
+    case kpidChangeTime:
+      if (!fi.ChangeTime_WasRequested)
+        ReadChangeTime(fi);
+      if (fi.ChangeTime_Defined)
+        prop = fi.ChangeTime;
+      break;
+      
     #endif
 
     case kpidAttrib: prop = (UInt32)fi.Attrib; break;

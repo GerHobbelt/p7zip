@@ -51,7 +51,7 @@ struct CArcCmdLineOptions
   bool HelpMode;
 
   // bool LargePages;
-  bool CaseSensitiveChange;
+  bool CaseSensitive_Change;
   bool CaseSensitive;
 
   bool IsInTerminal;
@@ -98,6 +98,9 @@ struct CArcCmdLineOptions
   CBoolPair HardLinks;
   CBoolPair SymLinks;
 
+  CBoolPair StoreOwnerId;
+  CBoolPair StoreOwnerName;
+
   CUpdateOptions UpdateOptions;
   CHashOptions HashOptions;
   UString ArcType;
@@ -117,7 +120,7 @@ struct CArcCmdLineOptions
   CArcCmdLineOptions():
       HelpMode(false),
       // LargePages(false),
-      CaseSensitiveChange(false),
+      CaseSensitive_Change(false),
       CaseSensitive(false),
 
       IsInTerminal(false),

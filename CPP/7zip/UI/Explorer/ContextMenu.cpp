@@ -102,6 +102,7 @@ CZipContextMenu::CZipContextMenu():
    _isMenuForFM(false),
    _dropMode(false),
    _bitmap(NULL),
+   _writeZone((UInt32)(Int32)-1),
    IsSeparator(false),
    IsRoot(true),
    CurrentSubCommand(0)
@@ -1181,7 +1182,8 @@ HRESULT CZipContextMenu::InvokeCommandCommon(const CCommandMapItem &cmi)
       {
         ExtractArchives(_fileNames, cmi.Folder,
             (cmdID == kExtract), // showDialog
-            (cmdID == kExtractTo) && _elimDup.Val // elimDup
+            (cmdID == kExtractTo) && _elimDup.Val, // elimDup
+            _writeZone
             );
         break;
       }

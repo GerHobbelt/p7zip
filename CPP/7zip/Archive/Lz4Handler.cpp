@@ -360,7 +360,7 @@ REGISTER_ARC_IO(
   "lz4", "lz4 tlz4", "* .tar", 0x0f,
   k_Signature,
   0,
-  NArcInfoFlags::kKeepName,
+  NArcInfoFlags::kKeepName, 0,
   IsArc_lz4)
 
 }}

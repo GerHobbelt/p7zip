@@ -371,7 +371,7 @@ REGISTER_ARC_IO(
   "zstd", "zst tzstd", "* .tar", 0x0e,
   k_Signature,
   0,
-  NArcInfoFlags::kKeepName,
+  NArcInfoFlags::kKeepName, 0,
   IsArc_zstd)
 
 }}

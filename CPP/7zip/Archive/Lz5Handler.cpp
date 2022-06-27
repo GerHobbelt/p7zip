@@ -360,7 +360,7 @@ REGISTER_ARC_IO(
   "lz5", "lz5 tlz5", "* .tar", 0x10,
   k_Signature,
   0,
-  NArcInfoFlags::kKeepName,
+  NArcInfoFlags::kKeepName, 0,
   IsArc_lz5)
 
 }}

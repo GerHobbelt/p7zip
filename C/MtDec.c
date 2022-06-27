@@ -862,7 +862,7 @@ static THREAD_FUNC_DECL ThreadFunc1(void *pp)
   return (THREAD_FUNC_RET_TYPE)(UINT_PTR)res;
 }
 
-static THREAD_FUNC_DECL ThreadFunc(void *pp)
+static MY_NO_INLINE THREAD_FUNC_DECL ThreadFunc(void *pp)
 {
   #ifdef USE_ALLOCA
   CMtDecThread *t = (CMtDecThread *)pp;

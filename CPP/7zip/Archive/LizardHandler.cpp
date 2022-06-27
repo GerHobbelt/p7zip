@@ -360,7 +360,7 @@ REGISTER_ARC_IO(
   "lizard", "liz tliz", "* .tar", 0x11,
   k_Signature,
   0,
-  NArcInfoFlags::kKeepName,
+  NArcInfoFlags::kKeepName, 0,
   IsArc_lizard)
 
 }}
